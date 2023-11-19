@@ -1,23 +1,29 @@
 use std::fs;
+use std::path::PathBuf;
 
 use clap::Parser;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(author, version, about)]
 struct Cli {
-    #[arg(short, long)]
-    count_bytes: String,
+    #[arg(short('c'), long)]
+    bytes: bool,
+    file_path: PathBuf,
 }
 
 fn main() {
     let cli = Cli::parse();
-    let file_path: String = cli.count_bytes;
+    let file_path = cli.file_path;
 
-    let content: String = fs::read_to_string(file_path.clone()).unwrap_or_else(|err| {
-        eprintln!("error reading file '{}': {}", file_path, err);
-        std::process::exit(1);
-    });
-    let bytes_count = content.len();
+    let content: String = fs::read_to_string(&file_path)
+        .map_err(|err| {
+            eprintln!("error reading file '{}': {}", file_path.display(), err);
+            std::process::exit(1);
+        })
+        .unwrap();
 
-    println!("{} {}", bytes_count, file_path);
+    if cli.bytes {
+        let bytes_count = content.len();
+        println!("{} {}", bytes_count, file_path.display());
+    }
 }
