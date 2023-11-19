@@ -8,6 +8,8 @@ use clap::Parser;
 struct Cli {
     #[arg(short('c'), long)]
     bytes: bool,
+    #[arg(short, long)]
+    lines: bool,
     file_path: PathBuf,
 }
 
@@ -25,5 +27,10 @@ fn main() {
     if cli.bytes {
         let bytes_count = content.len();
         println!("{} {}", bytes_count, file_path.display());
+    }
+
+    if cli.lines {
+        let lines_count = content.lines().count();
+        println!("{} {}", lines_count, file_path.display());
     }
 }
