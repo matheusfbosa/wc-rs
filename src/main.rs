@@ -10,6 +10,8 @@ struct Cli {
     bytes: bool,
     #[arg(short, long)]
     lines: bool,
+    #[arg(short, long)]
+    words: bool,
     file_path: PathBuf,
 }
 
@@ -24,13 +26,22 @@ fn main() {
         })
         .unwrap();
 
-    if cli.bytes {
-        let bytes_count = content.len();
-        println!("{} {}", bytes_count, file_path.display());
-    }
-
-    if cli.lines {
-        let lines_count = content.lines().count();
-        println!("{} {}", lines_count, file_path.display());
+    match (cli.bytes, cli.lines, cli.words) {
+        (true, _, _) => {
+            let bytes_count = content.len();
+            println!("{} {}", bytes_count, file_path.display());
+        }
+        (_, true, _) => {
+            let lines_count = content.lines().count();
+            println!("{} {}", lines_count, file_path.display());
+        }
+        (_, _, true) => {
+            let words_count = content.split_whitespace().count();
+            println!("{} {}", words_count, file_path.display());
+        }
+        _ => {
+            eprintln!("error: please specify an argument");
+            std::process::exit(1);
+        }
     }
 }
